@@ -1,0 +1,48 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "integer"
+      },
+      "team_name": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string"
+      },
+      "api_url": {
+        "type": "string"
+      },
+      "job_name": {
+        "type": "string"
+      },
+      "pipeline_id": {
+        "type": "integer"
+      },
+      "pipeline_name": {
+        "type": "string"
+      },
+      "start_time": {
+        "type": "integer"
+      },
+      "end_time": {
+        "type": "integer"
+      }
+    },
+    "required": [
+      "id",
+      "team_name",
+      "name",
+      "status",
+      "api_url",
+      "job_name",
+      "pipeline_id",
+      "pipeline_name",
+      "start_time",
+      "end_time"
+    ]
+  }
