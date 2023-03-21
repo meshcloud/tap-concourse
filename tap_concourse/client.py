@@ -11,21 +11,6 @@ from singer_sdk.pagination import BaseHATEOASPaginator
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
-from singer_sdk.pagination import BaseHATEOASPaginator
-
-class ConcoursePaginator(BaseHATEOASPaginator):
-    def get_next_url(self, response):
-        links = response.headers['link'].split(',')
-        
-        for x in links:
-            match = re.search('<(.*)>; rel="next"', x)
-            next_link = match.group(1)
-            if next_link:
-                return next_link
-
-        return None
-
-
 
 # todo: authentication via https://github.com/concourse/concourse/issues/1122
 # for now just enter a full-blown bearer token retrieved via `fly lo`
@@ -46,18 +31,6 @@ class ConcourseStream(RESTStream):
             token=self.config.get("auth").get("bearer_token")
         )
     
-    def get_new_paginator(self) -> ConcoursePaginator:
-        return ConcoursePaginator()
-
-    def get_url_params(self, context, next_page_token):
-        params = {}
-
-        # Next page token is a URL, so we can to parse it to extract the query string
-        if next_page_token:
-            params.update(parse_qsl(next_page_token.query))
-
-        return params
-
     @property
     def schema(self) -> dict:
         """Get dynamic schema including the configured tag schema
