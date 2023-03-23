@@ -25,6 +25,19 @@ class TapConcourse(Tap):
             description="The url of the Concourse ATC (excluding the /api prefix!)"
         ),
         th.Property(
+            "build_lookback_count",
+            th.IntegerType,
+            required=False,
+            default=1000,
+            description="The number of builds to look back when performing an incremental sync. Set this high enough to re-sync pending builds on the next sync run"
+        ),
+        th.Property(
+            "build_start_id",
+            th.IntegerType,
+            required=False,
+            description="The first build id to fetch. Set this to limit historical build data."
+        ),
+        th.Property(
             "auth",
             th.ObjectType(
                 th.Property(

@@ -3,7 +3,7 @@
 import datetime
 import re
 import time
-from typing import cast
+from typing import Optional, cast
 from urllib.parse import parse_qsl
 
 from pathlib import Path
@@ -30,6 +30,8 @@ class BuildStreamPaginator(BaseHATEOASPaginator):
                     return next_link
 
         return None
+
+
 class BuildsStream(ConcourseStream):
     path = "/api/v1/builds"
     name = "builds"
@@ -37,27 +39,47 @@ class BuildsStream(ConcourseStream):
     primary_keys = ["id"]
     
     replication_key="id"
-    
-    
+
     def get_url_params(self, context, next_page_token):
         params = {}
         
         starting_id = self.get_starting_replication_key_value(context)
-        self.logger.info("COMPUTING PARAMS from: %s starting_id: %s",  self.get_context_state(context), starting_id)
-
+    
         if next_page_token:
             # we already are in the middle of sync, fetch next page
             params.update(parse_qsl(next_page_token.query))
         elif starting_id:
             # we are on the first page but have existing state
             params["from"] = starting_id
-        else:
-            # we are on the first page, but have no state, i.e. full refresh
-            params["from"] = 58190814 # for testing
-            params["limit"] = 5
+            params["limit"] = 200
             
         self.logger.info("QUERY PARAMS: %s", params)
         return params       
+
+    def get_starting_replication_key_value(
+        self, context: Optional[dict]
+    ) -> Optional[int]:
+        """
+        Builds can continue to have status updates as they are running,
+        so we cannot assume that we have scraped all builds in a final state.
+        This function will return the starting "id"
+        
+        """
+        state = self.get_context_state(context)
+        replication_key_value = state.get("replication_key_value")
+        
+        lookback = self.config["build_lookback_count"]
+        start = self.config["build_start_id"]
+        
+        if replication_key_value:
+            return max(replication_key_value - lookback, start, 1)
+
+        if start:
+            return start
+        
+    
+        self.logger.info("Setting first build id to 1 to perform full historical sync.")
+        return 1    
 
 
     def get_new_paginator(self) -> BuildStreamPaginator:
