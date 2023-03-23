@@ -1,6 +1,8 @@
 # tap-concourse
 
-`tap-concourse` is a Singer tap for Concourse CI
+`tap-concourse` is a Singer tap for Concourse CI.
+
+Warning: this tap uses the private Concourse ATC API like the `fly` cli tool. This is not an official integration.
 
 Built with the [Meltano Tap SDK](https://sdk.meltano.com) for Singer Taps.
 
