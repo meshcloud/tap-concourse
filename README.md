@@ -25,8 +25,18 @@ plugins:
 ### Accepted Config Options
 
 - `base_url`: meshStack federation config
+- `team`: name of the concours team to fetch data from
+- `build_start_id`: id to start collecting data from - use 0 to start from beginning of time
+- `build_lookback_count`: size of lookback window to catch running builds on incremental replication
 - `auth`: authentication options
-  - `bearer_token`: bearer token
+  - `basic`: basic auth configuration
+    - `username`: username
+    - `password`: password
+
+Note: The last few pages of builds in concourse typically have running builds that have no final status.
+This means the tap cannot assume that it has fetched all builds in their final state.
+The `build_lookback_count` configure the size of a lookback window (counted in build ids) to collect
+updates for these builds on the next incremental run of the tap.
 
 A full list of supported settings and capabilities for this tap is available by running:
 

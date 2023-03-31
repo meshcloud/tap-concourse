@@ -25,6 +25,12 @@ class TapConcourse(Tap):
             description="The url of the Concourse ATC (excluding the /api prefix!)"
         ),
         th.Property(
+            "team",
+            th.StringType,
+            required=True,
+            description="The name of the concourse team to fetch data from"
+        ),
+        th.Property(
             "build_lookback_count",
             th.IntegerType,
             required=False,
@@ -41,10 +47,11 @@ class TapConcourse(Tap):
             "auth",
             th.ObjectType(
                 th.Property(
-                    "bearer_token",
-                    th.StringType,
-                    required=True,
-                    description="The HTTP bearer token"
+                    "basic",
+                    th.ObjectType(
+                        th.Property("username", th.StringType),
+                        th.Property("password", th.StringType)
+                    ),
                 )
             ),
             required=True,

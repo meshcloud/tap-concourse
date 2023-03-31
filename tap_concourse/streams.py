@@ -1,16 +1,15 @@
 """Stream type classes for tap-concourse."""
 
-import datetime
 import re
-import time
-from typing import Optional, cast
-from urllib.parse import parse_qsl
-
-from pathlib import Path
-from pyparsing import Iterable
 import requests
-from tap_concourse.client import ConcourseStream
+
+from typing import Optional
+from urllib.parse import parse_qsl
+from pyparsing import Iterable
+from pathlib import Path
 from singer_sdk.pagination import BaseHATEOASPaginator
+
+from tap_concourse.client import ConcourseStream
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
@@ -33,12 +32,16 @@ class BuildStreamPaginator(BaseHATEOASPaginator):
 
 
 class BuildsStream(ConcourseStream):
-    path = "/api/v1/builds"
     name = "builds"
     records_jsonpath = "$.[*]"
     primary_keys = ["id"]
     
     replication_key="id"
+
+    @property
+    def path(self):
+        return f"/api/v1/teams/{self.config['team']}/builds"
+
 
     def get_url_params(self, context, next_page_token):
         params = {}
@@ -62,8 +65,8 @@ class BuildsStream(ConcourseStream):
         """
         Builds can continue to have status updates as they are running,
         so we cannot assume that we have scraped all builds in a final state.
-        This function will return the starting "id"
-        
+        This function will return the starting id minus some lookback window
+        to ensure we also get some builds before the last collected build
         """
         state = self.get_context_state(context)
         replication_key_value = state.get("replication_key_value")
