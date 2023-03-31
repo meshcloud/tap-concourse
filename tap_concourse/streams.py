@@ -80,8 +80,7 @@ class BuildsStream(ConcourseStream):
         if start:
             return start
         
-    
-        self.logger.info("Setting first build id to 1 to perform full historical sync.")
+        # Setting first build id to 1 to perform full historical sync.
         return 1    
 
 
