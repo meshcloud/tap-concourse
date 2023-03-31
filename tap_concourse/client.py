@@ -4,17 +4,20 @@
 import requests
 import json
 from pathlib import Path
-from urllib.parse import parse_qsl
 
 from singer_sdk.streams import RESTStream
 from singer_sdk.authenticators import OAuthAuthenticator
-from singer_sdk.pagination import BaseHATEOASPaginator
+from memoization import cached
 
 from singer_sdk.helpers._util import utc_now
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
 class ConcourseAuthenticator(OAuthAuthenticator):
+    """
+    Implements the undocumented concourse API authentication flow, see
+    https://github.com/concourse/concourse/issues/1122
+    """
 
     @property
     def oauth_request_body(self) -> dict:
@@ -25,8 +28,6 @@ class ConcourseAuthenticator(OAuthAuthenticator):
             'password': self.config["auth"]["basic"]["password"],
         }
 
-
-        # Authentication and refresh
     def update_access_token(self) -> None:
         """Update `access_token` along with: `last_refreshed` and `expires_in`.
         Raises:
@@ -73,6 +74,7 @@ class ConcourseStream(RESTStream):
         return self.config.get("base_url")
     
     @property
+    @cached # reuse the authenticator for every request, see https://gitlab.com/meltano/sdk/-/blob/main/docs/code_samples.md#make-a-stream-reuse-the-same-authenticator-instance-for-all-requests
     def authenticator(self) -> ConcourseAuthenticator:
         """Return a new authenticator object."""
         return ConcourseAuthenticator(
