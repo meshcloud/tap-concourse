@@ -3,9 +3,8 @@
 import re
 import requests
 
-from typing import Optional
+from typing import Iterable, Optional
 from urllib.parse import parse_qsl
-from pyparsing import Iterable
 from pathlib import Path
 from singer_sdk.pagination import BaseHATEOASPaginator
 
