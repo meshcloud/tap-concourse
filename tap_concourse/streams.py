@@ -14,7 +14,8 @@ SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
 class BuildStreamPaginator(BaseHATEOASPaginator):
     def get_next_url(self, response):
-        links = response.headers['link'].split(',')
+        # link header might not be present if there's no next page
+        links = (response.headers['link'] or '') .split(',')
         
         # print("LINKS: %s", links)
 
